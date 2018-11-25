@@ -60,7 +60,7 @@ hfr_key_check <- function(test_vector, all_orders){
 }
 ```
 
-```{r, echo = FALSE, fig.height=10}
+```{r shiny app, echo = FALSE, fig.height=10}
 library(shiny)
 
 ui <- fluidPage(
@@ -103,3 +103,7 @@ server <- function(input, output) {
 shinyApp(ui=ui, server=server,options = list(height = 500))
 ```
 
+##Session Info
+```{r session info}
+sessionInfo()
+```
