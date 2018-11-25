@@ -1,7 +1,7 @@
 Custom Interactive Scripts for Bio97 
 =========================
 
-The purpose of this repository is to give scripts to help students practice course materials. 
+The purpose of this repository is to give scripts to help students practice course materials. To run any of these applications, you will need to open the .Rmd file in R studio and hit the "Run Document" button in the upper left corner. 
 
 Required Software <a name="software"></a>
 =================
