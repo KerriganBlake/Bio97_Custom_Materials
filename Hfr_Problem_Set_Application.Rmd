@@ -1,0 +1,105 @@
+---
+title: "Hfr Practice Problem Generator"
+author: "Kerrigan Blake"
+date: "11/25/2018"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require("shiny")
+```
+
+```{r hfr, echo = FALSE}
+generate_hfr <- function(random_seed, n_genes_total, n_genes_in_table, n_strains_in_table){
+  
+  #set random seed so each problem is unique
+  set.seed(random_seed)
+  
+  #set genes as random letters
+  list_of_genes <- sample(letters,n_genes_total)
+
+  #set inital ordering as the genes chosen above
+  all_possible_orders <- list_of_genes
+
+  #iterate through circle of genes to get all forward direction strains
+  for(i in 2:length(list_of_genes)){
+    all_possible_orders <- cbind(all_possible_orders, all_possible_orders[c(i:length(list_of_genes),1:i-1)])
+  }
+
+  #reverse all forward direction strains to get all strains
+  all_possible_orders <- cbind(all_possible_orders, all_possible_orders[rev(1:nrow(all_possible_orders)),])
+
+  #rename rows to be strain numbers
+  colnames(all_possible_orders) <- paste("Strain_", 1:ncol(all_possible_orders), sep="")
+
+  #chose a random set of strains and subset the number of genes viewed in each strain
+  Strains_for_Example <- t(all_possible_orders[1:n_genes_in_table,
+                                               sample(1:ncol(all_possible_orders),n_strains_in_table)])
+  
+  #return both the full list of possible strains, and the table used for the problem
+  return(list(strains=Strains_for_Example, all_orders=all_possible_orders))
+}
+
+hfr_key_check <- function(test_vector, all_orders){
+  #redefine vector by splitting in .
+  test_vector <- unlist(strsplit(test_vector, "[.]"))
+  
+  #find how many times the test vector matches a position in the 
+  #list of all possible orders for hfr strains
+  n_true_per_col <- colSums(test_vector == all_orders)
+  
+  #if a full column is true, the proposed order is possible
+  #otherwise, it is not
+  if(max(n_true_per_col) == nrow(all_orders)){
+    return("Correct!")
+  }else{
+    return("Try again!")
+  }
+}
+```
+
+```{r, echo = FALSE, fig.height=10}
+library(shiny)
+
+ui <- fluidPage(
+  numericInput("random_number", "Example Problem:", 1, min = 1, max = 100),
+  tableOutput('table'),
+  textInput("response","What is a proper gene ordering? (Give lower-case genes seperated by periods, e.g. a.b.c.d)",""),
+  actionButton(inputId="submit", label="Submit"),
+  textOutput("name")
+  )
+
+server <- function(input, output) {
+  
+  #set up parameters
+  random_seed <- reactive(input$random_number)
+  n_genes_total <- 10
+  n_genes_in_table <- 8 
+  n_strains_in_table <- 6
+
+  #run three-point cross generator
+  example_run <- reactive(generate_hfr(random_seed(),
+                            n_genes_total,
+                            n_genes_in_table,
+                            n_strains_in_table))
+  
+  table_of_interest <- reactive(example_run()$strains)
+
+  output$table <- renderTable({table_of_interest()},
+    include.rownames=TRUE,include.colnames=FALSE)
+  
+  name <- eventReactive(input$submit,{
+    if(length(unlist(strsplit(input$response, "[.]"))) == n_genes_total){
+      hfr_key_check(input$response,example_run()$all_orders)
+    }else{
+      paste0("Please enter a response with ",n_genes_total," genes")
+    }})
+  
+  output$name <- renderText({name()})
+}
+
+shinyApp(ui=ui, server=server,options = list(height = 500))
+```
+
