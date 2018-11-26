@@ -14,6 +14,7 @@ All of the scripts here will require R studio to run - both R and R studio are f
 Table of Contents
 =================
 * [Hfr Problems](https://github.com/KerriganBlake/Bio97_Custom_Materials/blob/master/Hfr_Problem_Set_Application.Rmd)
+* [Genetic Drift Simulation](https://github.com/KerriganBlake/Bio97_Custom_Materials/blob/master/Genetic_Drift_Simulator.Rmd)
 		
 	
 
