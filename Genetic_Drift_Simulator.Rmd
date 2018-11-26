@@ -38,8 +38,9 @@ simulate_drift <- function(population_size, random_seed){
     levels(alleles) <- c("a","A")
   }
   colnames(current_pop) <- c("a","A")
+  current_pop <- current_pop/population_size
   current_pop_melt <- melt(current_pop)
-  colnames(current_pop_melt) <- c("Generation","Allele","Number of Alleles")
+  colnames(current_pop_melt) <- c("Generation","Allele","Allele Frequency")
   
   return(current_pop_melt)
 }
@@ -58,24 +59,22 @@ ui <- fluidPage(
 server <- function(input, output) {
   
   #set up parameters
-  #random_seed <- reactive(input$random_number)
   population <- reactive(input$population_size)
-
-
   
   drift <- eventReactive(input$submit,{
     #run three-point cross generator
     example_run <- reactive(simulate_drift(population(),round(runif(1,0,1000),0)))
-    ggplot(example_run(), aes(x=Generation,y=`Number of Alleles`,color=factor(Allele))) + geom_line(size=2) + 
-    theme_classic() + theme(text=element_text(size=20)) + ylim(0,population()) + 
+    ggplot(example_run(), aes(x=Generation,y=`Allele Frequency`,color=factor(Allele))) + geom_line(size=2) + 
+    theme_classic() + theme(text=element_text(size=20)) + ylim(0,1) + 
     ggtitle("Allele Frequencies Over 100 Generations")
     })
   
   output$drift <- renderPlot({drift()})
 }
 
-shinyApp(ui=ui, server=server,options = list(height = 1000))
+shinyApp(ui=ui, server=server,options = list(height = 500))
 ```
+Note: If graphs start to look similar for a single population size, do a few simulations of a population with a different size to reset seed generator.
 
 ##Session Info
 ```{r session info}
