@@ -1,0 +1,81 @@
+---
+title: "Genetic Drift Simulator"
+author: "Kerrigan Blake"
+date: "11/25/2018"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require("shiny")
+require("ggplot2")
+require("reshape2")
+```
+
+```{r drift simulator, echo = FALSE}
+simulate_drift <- function(population_size, random_seed){
+  
+  #set random seed to generate new data
+  set.seed(random_seed)
+    
+  #set up alleles are equal A and a
+  alleles <- factor(c(rep("A",ceiling(population_size/2)), rep("a",floor(population_size/2))), levels = c("a","A"))
+  
+  #set up population vector as numeric
+  current_pop <- as.numeric()
+  
+  for(i in 1:100){
+    #set current generation as allele numbers
+    current_pop <- rbind(current_pop, table(alleles))
+    
+    #set new generation as sample of alleles from past generation
+    new_generation <- sample(alleles, population_size, replace=T)
+    
+    #set alleles as new sampling & 
+    #set levels to ensure zeros are counted
+    alleles <- as.factor(new_generation)
+    levels(alleles) <- c("a","A")
+  }
+  colnames(current_pop) <- c("a","A")
+  current_pop_melt <- melt(current_pop)
+  colnames(current_pop_melt) <- c("Generation","Allele","Number of Alleles")
+  
+  return(current_pop_melt)
+}
+```
+
+```{r shiny app, echo = FALSE, fig.height=10}
+library(shiny)
+
+ui <- fluidPage(
+  #numericInput("random_number", "Example Drift:", 1, min = 1, max = 1000),
+  numericInput("population_size", "Population Size:", 100, min = 10, max = 1000, step=2),
+  actionButton(inputId="submit", label="Simulate"),
+  plotOutput("drift")
+  )
+
+server <- function(input, output) {
+  
+  #set up parameters
+  #random_seed <- reactive(input$random_number)
+  population <- reactive(input$population_size)
+
+
+  
+  drift <- eventReactive(input$submit,{
+    #run three-point cross generator
+    example_run <- reactive(simulate_drift(population(),round(runif(1,0,1000),0)))
+    ggplot(example_run(), aes(x=Generation,y=`Number of Alleles`,color=factor(Allele))) + geom_line() + theme_classic() + theme(text=element_text(size=20)) + ylim(0,population()) + ggtitle("Allele Frequencies Over 100 Generations")
+    })
+  
+  output$drift <- renderPlot({drift()})
+}
+
+shinyApp(ui=ui, server=server,options = list(height = 1000))
+```
+
+##Session Info
+```{r session info}
+sessionInfo()
+```
