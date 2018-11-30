@@ -11,6 +11,12 @@ All of the scripts here will require R studio to run - both R and R studio are f
 * R: https://www.r-project.org/
 * R Studio Desktop: https://www.rstudio.com/products/rstudio/download/ 
 
+It is likely that you will need to install a few packages in R to run these softwares. To start, please run the following command in the R Studio console:
+
+```{r}
+install.packages(c("shiny","ggplot2","reshape2"))
+```
+
 Table of Contents
 =================
 * [Hfr Problems](https://github.com/KerriganBlake/Bio97_Custom_Materials/blob/master/Hfr_Problem_Set_Application.Rmd)
