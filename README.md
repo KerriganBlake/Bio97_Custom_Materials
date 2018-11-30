@@ -16,6 +16,7 @@ It is likely that you will need to install a few packages in R to run these soft
 ```{r}
 install.packages(c("shiny","ggplot2","reshape2"))
 ```
+To download scripts to your computer, please click the green "Clone or download" in the upper right corner of this page and choose "Download ZIP"
 
 Table of Contents
 =================
